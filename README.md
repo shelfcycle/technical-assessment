@@ -68,7 +68,7 @@ postgresql://postgres:password@localhost:5432/mydb
 - [Next](https://nextjs.org/)
 - [Prisma](https://www.prisma.io/)
 - [tRPC](https://trpc.io/)
-- [Taiwind](https://tailwindcss.com/)
+- [Tailwind](https://tailwindcss.com/)
 
 Any existing components or functionality is free to reuse, and there are no limits to how you solve
 problems or what you change.
