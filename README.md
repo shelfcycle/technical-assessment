@@ -1,40 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# ShelfCycle Assessment
+
+We're excited to see how you approach building solutions using React, tRPC, and PostgreSQL — the core technologies we use to deliver features and value to our users.
+
+In this assessment, we're evaluating your ability to:
+
+- Frontend Development: Build clean and intuitive user interfaces using React.
+- API Design: Leverage tRPC to create and consume type-safe APIs.
+- Database Interaction: Use PostgreSQL efficiently to store and retrieve data.
+- Problem-Solving: Break down challenges into clear, logical solutions.
+- Code Quality: Write maintainable, readable, and performant code.
+
+If you have time and feel confident, feel free to add extra features or optimizations. They're not required but can demonstrate your creativity.
 
 ## Getting Started
 
-First, run the development server:
+Everything you need to get started can be kicked off with the Docker Compose config. Simply run:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker-compose up
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Once it's up and running you can access the client at [`http://localhost:3000`](http://localhost:3000).
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+If you need to access the Postgres database instance directly, you can use the following connection string:
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+```
+postgresql://postgres:password@localhost:5432/mydb
+```
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+> 📝 **NOTE** - If you would rather use Next locally instead of through Docker you can use the above connection string in place of the existing `DATABASE_URL` env var.
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Included libs
 
-## Learn More
+- [Next](https://nextjs.org/)
+- [Prisma](https://www.prisma.io/)
+- [tRPC](https://trpc.io/)
+- [Taiwind](https://tailwindcss.com/)
 
-To learn more about Next.js, take a look at the following resources:
+## Objectives
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+This assessment has a few core objectives:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Edit Existing Customers:
+  - Implement the functionality to update details for an existing Customer.
 
-## Deploy on Vercel
+* Create a new `Product` model with the following columns:
+  - id
+  - name
+  - unit of measure (lb, gal, kg, etc)
+  - customer (each Product should belong to a Customer)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Create Products for a Customer:
+  - Enable the creation of Product records associated with a specific Customer.
+  - Each Product should include details such as its name, unit of measurement, and any association to a Customer.
+  - Each Product should be unique for each Customer. A Customer should not be able to create multiple "_Copper_" Products, for example.
+- Display Products on the Customer Detail Page:
+  - Update the detail page for Customer where all associated Product records are listed.
+  - Ensure the data is clearly presented and easy to interact with.
+- Delete Products from a Customer:
+  - Provide the ability to delete a Product associated with a Customer.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+Any existing components or functionality is free to reuse, and there are no limits to how you solve
+problems or what you change.
