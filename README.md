@@ -63,6 +63,17 @@ postgresql://postgres:password@localhost:5432/mydb
 
 > 📝 **NOTE** - If you would rather use Next locally instead of through Docker you can use the above connection string in place of the existing `DATABASE_URL` env var.
 
+### Working with Prisma
+
+When working with Prisma for modifying the database schema there are a few handy stripts built out for that:
+
+- `prisma:seed` - for seeding your database with data from the `./prisma/seed.ts` module
+- `prisma:migrate-dev` - for creating new migrations and syncing your database with the current migrations
+
+You will need to generate migrations on your local system instead of the docker-compose network, all of the env requirements to accomodate that are in place, you just need to enable the [env var](https://nextjs.org/docs/pages/building-your-application/configuring/environment-variables#loading-environment-variables).
+
+Whenever you start the docker-compose network it will automatically run any migrations and seeds at startup.
+
 ### Included libs
 
 - [Next](https://nextjs.org/)

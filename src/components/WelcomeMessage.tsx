@@ -1,3 +1,9 @@
+import { PropsWithChildren } from "react";
+
+const ObjectiveTitle = (props: PropsWithChildren) => (
+  <span className="font-semibold italic">{props.children}</span>
+);
+
 export const WelcomeMessage = () => (
   <div>
     <p>
@@ -29,7 +35,7 @@ export const WelcomeMessage = () => (
       optimizations. They're not required but can demonstrate your creativity.
     </p>
 
-    <h3>Included libs</h3>
+    <h3>Included libraries:</h3>
 
     <ul>
       <li>
@@ -62,7 +68,7 @@ export const WelcomeMessage = () => (
 
     <ul>
       <li>
-        Edit Existing Customers:
+        <ObjectiveTitle>Edit Existing Customers:</ObjectiveTitle>
         <ul>
           <li>
             Implement the functionality to update details for an existing
@@ -71,7 +77,9 @@ export const WelcomeMessage = () => (
         </ul>
       </li>
       <li>
-        Create a new <code>Product</code> model with the following columns:
+        <ObjectiveTitle>
+          Create a new <code>Product</code> model with the following columns:
+        </ObjectiveTitle>
         <ul>
           <li>id</li>
           <li>name</li>
@@ -80,7 +88,7 @@ export const WelcomeMessage = () => (
         </ul>
       </li>
       <li>
-        Create Products for a Customer:
+        <ObjectiveTitle>Create Products for a Customer:</ObjectiveTitle>
         <ul>
           <li>
             Enable the creation of Product records associated with a specific
@@ -98,7 +106,9 @@ export const WelcomeMessage = () => (
         </ul>
       </li>
       <li>
-        Display Products on the Customer Detail Page:
+        <ObjectiveTitle>
+          Display Products on the Customer Detail Page:
+        </ObjectiveTitle>
         <ul>
           <li>
             Update the detail page for Customer where all associated Product
@@ -110,7 +120,7 @@ export const WelcomeMessage = () => (
         </ul>
       </li>
       <li>
-        Delete Products from a Customer:
+        <ObjectiveTitle>Delete Products from a Customer:</ObjectiveTitle>
         <ul>
           <li>
             Provide the ability to delete a Product associated with a Customer.

@@ -1,5 +1,21 @@
 name: shelfcycle_assessment
 services:
+  postgres:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   nextjs:
     depends_on:
       - postgres
@@ -12,19 +28,12 @@ services:
       - .:/app
       - /app/node_modules
     environment:
-      - DATABASE_URL=${DATABASE_URL}
+      - DATABASE_URL=postgresql://postgres:password@postgres/mydb
     command: "npm run dx:start"
-
-  postgres:
-    image: postgres:14
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: mydb
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    entrypoint: >
+      sh -c "
+      ./docker/wait-for-it.sh postgres:5432 --timeout=30 -- npm run dx:start
+      "
 
 volumes:
   postgres_data:
