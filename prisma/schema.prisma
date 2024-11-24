@@ -23,4 +23,72 @@ model Customer {
   city    String?
   state   String?
   zipCode String?
+  products Product[]
+  createdAt   DateTime @default(now()) 
+  updatedAt   DateTime @updatedAt 
+
+  CustomerProduct CustomerProduct[]
+}
+
+model Product {
+  id          Int           @id @default(autoincrement())
+  customer    Customer      @relation(fields: [customerId], references: [id])
+  customerId  Int
+  name        String
+  unitOfMeasure unitOfMeasure
+  createdAt   DateTime      @default(now()) 
+  updatedAt   DateTime      @updatedAt 
+
+  @@unique([customerId, name]) 
+  CustomerProduct CustomerProduct[]
+}
+
+model CustomerProduct {
+  id          Int           @id @default(autoincrement())
+  customer    Customer      @relation(fields: [customerId], references: [id])
+  customerId  Int
+  product     Product       @relation(fields: [productId], references: [id])
+  productId   Int
+  createdAt   DateTime      @default(now()) 
+  updatedAt   DateTime      @updatedAt 
+
+  @@unique([customerId, productId]) 
+}
+
+enum unitOfMeasure {
+  bag
+  barrel
+  box
+  bunch
+  bundle
+  butt
+  canister
+  carton
+  case
+  container
+  crate
+  cubicCentimeter
+  cubicFoot
+  cubicInch
+  cubicMeter
+  cubicYard
+  cup
+  dozen
+  each
+  gallon
+  gram
+  gross
+  kilogram
+  liter
+  metricTon
+  milliliter
+  ounce
+  pair
+  piece
+  pint
+  pound
+  quart
+  set
+  ton
+  tray
 }
