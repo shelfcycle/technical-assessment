@@ -23,7 +23,6 @@ model Customer {
   city    String?
   state   String?
   zipCode String?
-  products Product[]
   createdAt   DateTime @default(now()) 
   updatedAt   DateTime @updatedAt 
 
@@ -32,14 +31,11 @@ model Customer {
 
 model Product {
   id          Int           @id @default(autoincrement())
-  customer    Customer      @relation(fields: [customerId], references: [id])
-  customerId  Int
   name        String
   unitOfMeasure unitOfMeasure
   createdAt   DateTime      @default(now()) 
   updatedAt   DateTime      @updatedAt 
 
-  @@unique([customerId, name]) 
   CustomerProduct CustomerProduct[]
 }
 
@@ -75,6 +71,7 @@ enum unitOfMeasure {
   cup
   dozen
   each
+  canadianEach
   gallon
   gram
   gross
@@ -90,5 +87,5 @@ enum unitOfMeasure {
   quart
   set
   ton
-  tray
 }
+
