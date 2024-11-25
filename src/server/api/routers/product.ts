@@ -1,4 +1,4 @@
-import { createProductForCustomer, addProductToCustomer, getProductsByCustomerId, getProductsByNotCustomerId, prisma } from "@/server/data/prisma.service"; 
+import { addProductToCustomer, createProductForCustomer, deleteProductFromCustomer, getProductsByCustomerId, getProductsByNotCustomerId } from "@/server/data/prisma.service"; 
 import { unitOfMeasure } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -14,7 +14,12 @@ const createForCustomerSchema = z.object({
   unitOfMeasure: z.nativeEnum(unitOfMeasure),
 });
 
-const createCustomerProductSchema = z.object({
+const addToCustomerSchema = z.object({
+  customerId: z.number().int(),
+  productId: z.number().int(),
+});
+
+const deleteFromCustomerSchema = z.object({
   customerId: z.number().int(),
   productId: z.number().int(),
 });
@@ -43,13 +48,13 @@ export const productsRouter = router({
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: `Failed to fetch products not associated with customer with Id [${input.customerId}]`,
+          message: `Failed to fetch un-added products customer with Id [${input.customerId}]`,
         });
       }
     }),
 
   addToCustomer: publicProcedure
-    .input(createCustomerProductSchema)
+    .input(addToCustomerSchema)
     .mutation(async ({ input }) => {
       const { customerId, productId } = input;
 
@@ -80,7 +85,23 @@ export const productsRouter = router({
       } catch (error) {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
-          message: `Failed to create product and associate with customer with Id [${customerId}]`,
+          message: `Failed to create product for customer with Id [${customerId}]`,
+        });
+      }
+    }),
+
+    deleteFromCustomer: publicProcedure
+    .input(deleteFromCustomerSchema)
+    .mutation(async ({ input }) => {
+      const { customerId, productId } = input;
+
+      try {
+        const result = await deleteProductFromCustomer(customerId, productId);
+        return result;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to delete product with Id [${productId}] from customer with Id [${customerId}]`,
         });
       }
     }),

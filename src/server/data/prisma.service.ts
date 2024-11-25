@@ -44,7 +44,6 @@ export const updateCustomer = async (data: {
   });
 };
 
-
 export const getProductsByCustomerId = async (customerId: number) => {
   return prisma.product.findMany({
     where: {
@@ -135,5 +134,33 @@ export const addProductToCustomer = async (customerId: number, productId: number
     throw new Error(`Failed to add product to customer with Id [${customerId}]`);
   }
 };
+
+export const deleteProductFromCustomer = async (customerId: number, productId: number) => {
+  try {
+    await prisma.$transaction(async (tx) => {
+      // delete CustomerProduct record
+      await tx.customerProduct.delete({
+        where: {
+          customerId_productId: {
+            customerId,
+            productId,
+          },
+        },
+      });
+
+      // delete any orphaned products
+      await tx.product.deleteMany({
+        where: {
+          CustomerProduct: {
+            none: {},
+          },
+        },
+      });
+    });
+  }
+  catch (error) {
+    throw new Error(`Failed to delete product from customer with Id [${customerId}]`);
+  }
+}
 
 export { prisma };

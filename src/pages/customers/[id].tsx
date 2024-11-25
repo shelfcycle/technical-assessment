@@ -23,6 +23,7 @@ interface CustomerContactEditProps {
 
 interface CustomerProductsProps {
   products: Product[];
+  customerId: number;
 }
 
 interface AddExistingProductFormValues {
@@ -124,18 +125,45 @@ const CustomerContact: React.FC<CustomerContactProps> = ({ customer }) => {
   );
 };
 
-const CustomerProducts: React.FC<CustomerProductsProps> = ({ products }) => {
+const CustomerProducts: React.FC<CustomerProductsProps> = ({ products, customerId }) => {
+  const utils = trpc.useUtils();
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  const deleteMutation = trpc.products.deleteFromCustomer.useMutation({
+    onSuccess: () => {
+      utils.products.listAllByCustomerId.invalidate();
+      setDeletingId(null);
+    },
+  });
+
+  const handleDelete = (id: number) => {
+    setDeletingId(id);
+  };
+
+  const confirmDelete = () => {
+    if (deletingId !== null) {
+      deleteMutation.mutate({customerId, productId: deletingId});
+    }
+  };
   return (
     <div>
       <h3>Products</h3>
       <ul>
         {products.map((product) => (
-          <li key={product.id}>{product.name}</li>
+          <li key={product.id}>{product.name} <button onClick={() => handleDelete(product.id)}>Delete</button></li>
         ))}
       </ul>
+      {deletingId !== null && (
+        <div>
+          <p>Are you sure you want to delete this customer?</p>
+          <button onClick={confirmDelete}>Yes, Delete</button>
+          <button onClick={() => setDeletingId(null)}>Cancel</button>
+        </div>
+      )}
     </div>
   );
 };
+
 
 const AddExistingProductForm = ({ customerId, onCancel }: { customerId: number; onCancel: () => void }) => {
   const utils = trpc.useUtils();
@@ -252,7 +280,6 @@ const CreateProductForm = ({ customerId, onCancel }: { customerId: number; onCan
           <p style={{ color: "red" }}>{errors.unitOfMeasure.message}</p>
         )}
       </div>
-      {/* I'd really prefer to show the success message from the backend transaction directly, but I'm not familiar enough with tRPC */}
       {isSuccess && <p>Product created successfully ✔️</p>}
       {isError && <p style={{ color: "red" }}>Error: {error?.message}</p>}
 
@@ -289,7 +316,7 @@ const CustomerDetailPage = () => {
             <p>
             <button onClick={() => setIsAddingProduct("add")}>Add Existing Product</button>
             </p>
-            <CustomerProducts products={products} />
+            <CustomerProducts products={products} customerId={sanitizedId} />
           </div>
         )}
 
