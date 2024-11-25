@@ -77,6 +77,21 @@ export const createProductForCustomer = async (data: {
 }) => {
   const { customerId, name, unitOfMeasure } = data;
 
+  const existingProduct = await prisma.product.findFirst({
+    where: {
+      name,
+      CustomerProduct: {
+        some: {
+          customerId,
+        },
+      },
+    },
+  });
+
+  if (existingProduct) {
+    throw new Error(`Product with name "${name}" already exists for this customer.`);
+  }
+
   try {
     return await prisma.$transaction(async (tx) => {
       const product = await tx.product.create({
@@ -138,7 +153,6 @@ export const addProductToCustomer = async (customerId: number, productId: number
 export const deleteProductFromCustomer = async (customerId: number, productId: number) => {
   try {
     await prisma.$transaction(async (tx) => {
-      // delete CustomerProduct record
       await tx.customerProduct.delete({
         where: {
           customerId_productId: {
@@ -148,7 +162,6 @@ export const deleteProductFromCustomer = async (customerId: number, productId: n
         },
       });
 
-      // delete any orphaned products
       await tx.product.deleteMany({
         where: {
           CustomerProduct: {
