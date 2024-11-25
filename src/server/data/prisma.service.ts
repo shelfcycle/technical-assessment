@@ -13,7 +13,8 @@ export const getCustomerById = async (id: number) => {
   });
 };
 
-export const createCustomer = async (data: {
+export const updateCustomer = async (data: {
+  id: number;
   name: string;
   email?: string;
   phone?: string;
@@ -23,10 +24,26 @@ export const createCustomer = async (data: {
   state?: string;
   zipCode?: string;
 }) => {
-  return prisma.customer.create({
-    data,
+  if (!data.name) {
+    throw new Error("Name is required");
+  }
+  return prisma.customer.update({
+    where: {
+      id: data.id,
+    },
+    data: {
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      street1: data.street1,
+      street2: data.street2,
+      city: data.city,
+      state: data.state,
+      zipCode: data.zipCode,
+    },
   });
 };
+
 
 export const getProductsByCustomerId = async (customerId: number) => {
   return prisma.product.findMany({

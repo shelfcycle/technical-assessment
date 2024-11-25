@@ -8,7 +8,7 @@ const listAllByCustomerIdSchema = z.object({
   customerId: z.number().int(),
 });
 
-const createProductForCustomerSchema = z.object({
+const createForCustomerSchema = z.object({
   customerId: z.number().int(),
   name: z.string(),
   unitOfMeasure: z.nativeEnum(unitOfMeasure),
@@ -48,7 +48,7 @@ export const productsRouter = router({
       }
     }),
 
-  addProductToCustomer: publicProcedure
+  addToCustomer: publicProcedure
     .input(createCustomerProductSchema)
     .mutation(async ({ input }) => {
       const { customerId, productId } = input;
@@ -64,8 +64,8 @@ export const productsRouter = router({
       }
     }),
 
-    createProductForCustomer: publicProcedure
-    .input(createProductForCustomerSchema)
+    createForCustomer: publicProcedure
+    .input(createForCustomerSchema)
     .mutation(async ({ input }) => {
       const { customerId, name, unitOfMeasure } = input;
 

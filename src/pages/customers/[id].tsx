@@ -1,4 +1,5 @@
 import { PageTitle } from "@/components/PageTitle";
+import {FormField} from "@/components/RHF/FormField";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
 import { Customer, Product, unitOfMeasure } from "@prisma/client";
@@ -7,6 +8,17 @@ import { useState } from "react";
 
 interface CustomerContactProps {
   customer: Customer;
+}
+
+interface CustomerContactShowProps {
+  customer: Customer;
+  onEdit: () => void;
+}
+
+interface CustomerContactEditProps {
+  customer: Customer;
+  onSubmit: (data: any) => void;
+  onCancel: () => void;
 }
 
 interface CustomerProductsProps {
@@ -22,28 +34,92 @@ interface CreateProductFormValues {
   unitOfMeasure: unitOfMeasure;
 }
 
-const CustomerContact: React.FC<CustomerContactProps> = ({ customer }) => {
-  const { email, phone, street1, street2, city, state, zipCode } = customer;
+const CustomerContactShow: React.FC<CustomerContactShowProps> = ({ customer, onEdit }) => {
+  const {name, email, phone, street1, street2, city, state, zipCode} = customer;
   return (
     <div>
-      <div>
-        <ul>
-          <li>
-            Phone: <a href={`tel:${phone}`}>{phone}</a>
-          </li>
-          <li>
-            Email: <a href={`mailto:${email}`}>{email}</a>
-          </li>
-        </ul>
-      </div>
-      <div>
-        <p>Address</p>
-        <p>
-          {street1}
-          <br />
-          {city}, {state} {zipCode}
-        </p>
-      </div>
+      <h3>{name}</h3>
+      <p>{email}</p>
+      <p>{phone}</p>
+      <p>{street1} {street2}</p>
+      <p>{city}{city && ','} {state} {zipCode}</p>
+      <button onClick={onEdit}>Edit Customer Details</button>
+    </div>
+  );
+};
+
+const CustomerContactEdit: React.FC<CustomerContactEditProps> = ({ customer, onSubmit, onCancel }) => {
+  const {name, email, phone, street1, street2, city, state, zipCode} = customer;
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    defaultValues: {
+      name: name || "",
+      email: email || "",
+      phone: phone || "",
+      street1: street1 || "",
+      street2: street2 || "",
+      city: city || "",
+      state: state || "",
+      zipCode: zipCode || "",
+    },
+  });
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <FormField name="name" label="Name" control={control} error={errors.name?.message} rules={{ required: 'Name is required' }}/>
+      <FormField name="email" label="Email" control={control} error={errors.email?.message} />
+      <FormField name="phone" label="Phone" control={control} error={errors.phone?.message} />
+      <FormField name="street1" label="Street 1" control={control} error={errors.street1?.message} />
+      <FormField name="street2" label="Street 2" control={control} error={errors.street2?.message} />
+      <FormField name="city" label="City" control={control} error={errors.city?.message} />
+      <FormField name="state" label="State" control={control} error={errors.state?.message} />
+      <FormField name="zipCode" label="Zip Code" control={control} error={errors.zipCode?.message} />
+
+      <button type="submit">Save</button>
+      <button type="button" onClick={onCancel}>Cancel</button>
+    </form>
+  );
+};
+
+
+const CustomerContact: React.FC<CustomerContactProps> = ({ customer }) => {
+  const utils = trpc.useUtils();
+  const [isEditing, setIsEditing] = useState(false);
+
+  const mutation = trpc.customers.update.useMutation({
+    onSuccess: async () => {
+      await utils.customers.getById.invalidate({ id: customer.id });
+      setIsEditing(false);
+    },
+    onError: (error) => {
+      console.error("Error updating customer:", error);
+    },
+  });
+
+  const onSubmit = async (data: any) => {
+    try {
+      await mutation.mutateAsync({
+        id: customer.id,
+        ...data,
+      });
+    } catch (err) {
+      console.error("Error updating customer:", err);
+    }
+  };
+
+  const onCancel = () => {
+    setIsEditing(false);
+  };
+
+  return (
+    <div>
+      {!isEditing ? (
+        <CustomerContactShow customer={customer} onEdit={() => setIsEditing(true)} />
+      ) : (
+        <CustomerContactEdit customer={customer} onSubmit={onSubmit} onCancel={onCancel} />
+      )}
+
+      {mutation.isSuccess && <p>Customer updated successfully ✔️</p>}
+      {mutation.isError && <p style={{ color: "red" }}>Error: {mutation.error?.message}</p>}
     </div>
   );
 };
@@ -69,7 +145,7 @@ const AddExistingProductForm = ({ customerId, onCancel }: { customerId: number; 
     customerId,
   });
 
-  const addProductToCustomerMutation = trpc.products.addProductToCustomer.useMutation({
+  const addProductToCustomerMutation = trpc.products.addToCustomer.useMutation({
     onSuccess: () => {
       utils.products.listAllByNotCustomerId.invalidate({ customerId });
       utils.products.listAllByCustomerId.invalidate({ customerId });
@@ -119,7 +195,7 @@ const AddExistingProductForm = ({ customerId, onCancel }: { customerId: number; 
 const CreateProductForm = ({ customerId, onCancel }: { customerId: number; onCancel: () => void }) => {
   const { control, handleSubmit, formState: { errors } } = useForm<CreateProductFormValues>();
 
-  const { mutate, isPending, isSuccess, isError, error } = trpc.products.createProductForCustomer.useMutation();
+  const { mutate, isPending, isSuccess, isError, error } = trpc.products.createForCustomer.useMutation();
 
   const unitOptions = Object.values(unitOfMeasure);
 
