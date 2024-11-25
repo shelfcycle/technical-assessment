@@ -5,7 +5,7 @@
 
 */
 -- CreateEnum
-CREATE TYPE "unitOfMeasure" AS ENUM ('bag', 'barrel', 'box', 'bunch', 'bundle', 'butt', 'canister', 'carton', 'case', 'container', 'crate', 'cubicCentimeter', 'cubicFoot', 'cubicInch', 'cubicMeter', 'cubicYard', 'cup', 'dozen', 'each', 'canadianEach', 'gallon', 'gram', 'gross', 'kilogram', 'liter', 'metricTon', 'milliliter', 'ounce', 'pair', 'piece', 'pint', 'pound', 'quart', 'set', 'ton');
+CREATE TYPE "unitOfMeasure" AS ENUM ('Barrel', 'Box', 'Bunch', 'Bundle', 'Butt', 'Canister', 'Carton', 'Case', 'Container', 'Crate', 'CubicCentimeter', 'CubicFoot', 'CubicInch', 'CubicMeter', 'CubicYard', 'Cup', 'Dozen', 'Each', 'CanadianEach', 'Gallon', 'Gram', 'Gross', 'Kilogram', 'Liter', 'MetricTon', 'Milliliter', 'Ounce', 'Pair', 'Piece', 'Pint', 'Pound', 'Quart', 'Set', 'Ton');
 
 -- AlterTable
 ALTER TABLE "Customer" ADD COLUMN     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

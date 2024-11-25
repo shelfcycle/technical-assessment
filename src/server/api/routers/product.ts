@@ -1,4 +1,4 @@
-import { createProduct, addProductToCustomer, getProductsByCustomerId, getProductsByNotCustomerId } from "@/server/data/prisma.service"; 
+import { createProductForCustomer, addProductToCustomer, getProductsByCustomerId, getProductsByNotCustomerId, prisma } from "@/server/data/prisma.service"; 
 import { unitOfMeasure } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -8,7 +8,8 @@ const listAllByCustomerIdSchema = z.object({
   customerId: z.number().int(),
 });
 
-const createProductSchema = z.object({
+const createProductForCustomerSchema = z.object({
+  customerId: z.number().int(),
   name: z.string(),
   unitOfMeasure: z.nativeEnum(unitOfMeasure),
 });
@@ -46,20 +47,6 @@ export const productsRouter = router({
         });
       }
     }),
-    
-  createProduct: publicProcedure
-    .input(createProductSchema)
-    .mutation(async ({ input }) => {
-      try {
-        const product = await createProduct(input);
-        return { item: product };
-      } catch (error) {
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: `Failed to create the product: ${input.name}`,
-        });
-      }
-    }),
 
   addProductToCustomer: publicProcedure
     .input(createCustomerProductSchema)
@@ -73,6 +60,27 @@ export const productsRouter = router({
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: `Failed to add product with Id [${productId}] to customer with Id [${customerId}]`,
+        });
+      }
+    }),
+
+    createProductForCustomer: publicProcedure
+    .input(createProductForCustomerSchema)
+    .mutation(async ({ input }) => {
+      const { customerId, name, unitOfMeasure } = input;
+
+      try {
+        const result = await createProductForCustomer({
+          customerId,
+          name,
+          unitOfMeasure,
+        });
+
+        return result;
+      } catch (error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: `Failed to create product and associate with customer with Id [${customerId}]`,
         });
       }
     }),

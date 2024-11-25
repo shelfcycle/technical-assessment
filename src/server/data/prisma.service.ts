@@ -1,4 +1,4 @@
-import { unitOfMeasure } from "@prisma/client";
+import { Prisma, unitOfMeasure } from "@prisma/client";
 import { prisma } from "./prisma";
 
 export const getAllCustomers = async () => {
@@ -54,18 +54,35 @@ export const getProductsByNotCustomerId = async (customerId: number) => {
   });
 };
 
-export const createProduct = async (data: {
+export const createProductForCustomer = async (data: {
+  customerId: number;
   name: string;
   unitOfMeasure: unitOfMeasure;
 }) => {
-  return prisma.product.create({
-    data,
-  });
+  const { customerId, name, unitOfMeasure } = data;
+
+  try {
+    return await prisma.$transaction(async (tx) => {
+      const product = await tx.product.create({
+        data: {
+          name,
+          unitOfMeasure,
+        },
+      });
+
+      await addProductToCustomer(customerId, product.id, tx);
+
+      return { message: `${product.name} created for customer` };
+    });
+  } catch (error) {
+    throw new Error(`Failed to create product and associate with customer with Id [${customerId}]`);
+  }
 };
 
-export const addProductToCustomer = async (customerId: number, productId: number) => {
-  return prisma.$transaction(async (tx) => {
-    const customer = await tx.customer.findUnique({
+export const addProductToCustomer = async (customerId: number, productId: number, tx?: Prisma.TransactionClient) => {
+  const prismaClient = tx ?? prisma;
+  try {
+    const customer = await prismaClient.customer.findUnique({
       where: { id: customerId },
     });
 
@@ -73,7 +90,7 @@ export const addProductToCustomer = async (customerId: number, productId: number
       throw new Error(`Customer with Id [${customerId}] not found`);
     }
 
-    const product = await tx.product.findUnique({
+    const product = await prismaClient.product.findUnique({
       where: { id: productId },
     });
 
@@ -81,7 +98,7 @@ export const addProductToCustomer = async (customerId: number, productId: number
       throw new Error(`Product with Id [${productId}] not found`);
     }
 
-    await tx.customerProduct.upsert({
+    await prismaClient.customerProduct.upsert({
       where: {
         customerId_productId: {
           customerId,
@@ -95,8 +112,11 @@ export const addProductToCustomer = async (customerId: number, productId: number
       },
     });
 
-    return { message: `${product.name} successfully added to customer` };
-  });
+
+    return { message: `${product.name} added to customer` };
+  } catch (error) {
+    throw new Error(`Failed to add product to customer with Id [${customerId}]`);
+  }
 };
 
 export { prisma };
