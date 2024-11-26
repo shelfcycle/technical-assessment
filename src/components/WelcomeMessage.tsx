@@ -55,7 +55,7 @@ export const WelcomeMessage = () => (
       </li>
       <li>
         <a target="_blank" href="https://tailwindcss.com/">
-          Taiwind
+          Tailwind
         </a>
       </li>
     </ul>
