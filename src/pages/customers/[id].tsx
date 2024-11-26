@@ -97,15 +97,11 @@ const CustomerContact: React.FC<CustomerContactProps> = ({ customer }) => {
     },
   });
 
-  const onSubmit = async (data: any) => {
-    try {
-      await mutation.mutateAsync({
-        id: customer.id,
-        ...data,
-      });
-    } catch (err) {
-      console.error("Error updating customer:", err);
-    }
+  const onSubmit = (data: any) => {
+    mutation.mutate({
+      id: customer.id,
+      ...data,
+    });
   };
 
   const onCancel = () => {
@@ -224,13 +220,22 @@ const AddExistingProductForm = ({ customerId, onCancel }: { customerId: number; 
 
 const CreateProductForm = ({ customerId, onCancel }: { customerId: number; onCancel: () => void }) => {
   const { control, handleSubmit, formState: { errors } } = useForm<CreateProductFormValues>();
-  const { mutate, isPending, isSuccess, isError, error } = trpc.products.createForCustomer.useMutation();
-
   const unitOptions = Object.values(unitOfMeasure);
+  const utils = trpc.useUtils();
 
+  const { mutate, isPending, isSuccess, isError, error } = trpc.products.createForCustomer.useMutation({
+    onSuccess: () => {
+      utils.products.listAllByCustomerId.invalidate();
+      utils.products.listAllByNotCustomerId.invalidate();
+    },
+    onError: (error) => {
+      console.error("Error creating product:", error);
+    },
+  });
+  
   const onSubmit = async (data: CreateProductFormValues) => {
     try {
-      await mutate({
+      mutate({
         customerId,
         name: data.name,
         unitOfMeasure: data.unitOfMeasure,
@@ -239,6 +244,7 @@ const CreateProductForm = ({ customerId, onCancel }: { customerId: number; onCan
       console.error("Error creating product:", err);
     }
   };
+  
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
