@@ -1,11 +1,11 @@
 import Link from "next/link";
+
 import { PageTitle } from "@/components/PageTitle";
 import { trpc } from "@/utils/trpc";
 import { Table } from "@/components/Table";
 
 const CustomersPage = () => {
   const customersQuery = trpc.customers.list.useQuery();
-
   const items = customersQuery.data?.items || [];
   return (
     <div>

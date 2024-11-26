@@ -1,7 +1,7 @@
 import { PageTitle } from "@/components/PageTitle";
 import {AddExistingProductForm, CreateProductForm } from "@/components/Customer/CustomerProduct/Add";
 import { CustomerContact } from "@/components/Customer/CustomerDetails/Contact";
-import { CustomerProducts } from "@/components/Customer/CustomerProduct/List";
+import { CustomerProducts } from "@/components/Customer/CustomerProduct/Index";
 import { trpc } from "@/utils/trpc";
 import { useRouter } from "next/router";
 import { useState } from "react";
